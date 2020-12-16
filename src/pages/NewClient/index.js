@@ -5,7 +5,7 @@ import {View, Text} from 'react-native';
 const NewClient = () => {
   return (
     <View>
-      <Text>NewClient</Text>
+      <Text>Novo Cliente</Text>
     </View>
   );
 };

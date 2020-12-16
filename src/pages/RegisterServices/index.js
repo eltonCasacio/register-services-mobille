@@ -1,32 +1,37 @@
-import * as React from 'react';
-import {
-  View,
-  StyleSheet,
-  TouchableOpacity,
-  Platform,
-  Picker,
-} from 'react-native';
+import React, {useState} from 'react';
+import {View, StyleSheet, TouchableOpacity, Platform} from 'react-native';
 import {TextInput, Button} from 'react-native-paper';
 import DateTimePicker from '@react-native-community/datetimepicker';
 
-import CameraPicker from '../../components/CameraPicker';
+import Camera from '../../components/Camera';
+import ListClients from '../../components/ListClients';
 
 const RegisterService = () => {
-  const [expanded, setExpanded] = React.useState(false);
-  const [selectedClient, setSelectedClient] = React.useState('');
-  const [description, setDescription] = React.useState('');
-  const [price, setPrice] = React.useState('');
-  const [date, setDate] = React.useState();
-  const [showDate, setShowDate] = React.useState(false);
+  const [selectedClient, setSelectedClient] = useState('');
+  const [description, setDescription] = useState('');
+  const [price, setPrice] = useState('');
+  const [date, setDate] = useState();
+  const [photo, setPhoto] = useState();
 
-  const handleSelectedClient = async (value) => {
-    setSelectedClient(value);
-    setExpanded(!expanded);
-  };
+  const [showDate, setShowDate] = useState(false);
+
   const onChangeDate = (event, selectedDate) => {
     let currentDate = new Date(selectedDate).toLocaleDateString() || date;
     setShowDate(Platform.OS === 'ios');
     setDate(currentDate);
+  };
+
+  const onChangeSelectedClient = (value) => {
+    console.log('chegou aqui ', value);
+    setSelectedClient(value || '');
+  };
+
+  const cleanInputs = () => {
+    setSelectedClient('');
+    setDescription('');
+    setPrice('');
+    setDate('');
+    setPhoto('');
   };
 
   const save = () => {
@@ -35,6 +40,7 @@ const RegisterService = () => {
       description,
       price,
       date,
+      photo,
     });
   };
 
@@ -42,16 +48,8 @@ const RegisterService = () => {
 
   return (
     <View style={styles.container}>
-      <View style={styles.dropList}>
-        <Picker
-          selectedValue={selectedClient}
-          onValueChange={(itemValue, itemIndex) => {
-            handleSelectedClient(itemValue);
-          }}>
-          {clientes.map((item) => (
-            <Picker.Item key={item} label={item} value={item} />
-          ))}
-        </Picker>
+      <View>
+        <ListClients data={clientes} callback={onChangeSelectedClient} />
       </View>
 
       <View>
@@ -68,7 +66,7 @@ const RegisterService = () => {
         <TextInput
           style={styles.input}
           label="Valor"
-          value={price}
+          value={String(price)}
           underlineColor="#2ABFB0"
           keyboardType="numeric"
           onChangeText={(value) => setPrice(value)}
@@ -86,9 +84,19 @@ const RegisterService = () => {
           </TouchableOpacity>
         </View>
 
+        <View style={styles.camera}>
+          <Camera setPhoto={setPhoto} />
+        </View>
+
         <View style={styles.buttons}>
-          <CameraPicker />
-          <Button style={styles.inputSave} onPress={save}>
+          <Button style={styles.input} onPress={cleanInputs}>
+            LIMPAR
+          </Button>
+
+          <Button
+            style={styles.input}
+            disabled={!selectedClient}
+            onPress={save}>
             SALVAR
           </Button>
         </View>
@@ -113,33 +121,22 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 15,
   },
-  dropList: {
-    flex: 1,
-    marginBottom: 55,
-  },
-  items: {
-    borderBottomWidth: 1,
-    borderBottomColor: '#3EF091',
-    backgroundColor: '#0BE0B2',
-  },
-  listItems: {
-    backgroundColor: '#2ABFB0',
-    borderRadius: 5,
-  },
   buttons: {
-    margin: 20,
-    alignItems: 'center',
+    flexDirection: 'row',
+    justifyContent: 'center',
+    margin: 10,
   },
   input: {
-    margin: 5,
-  },
-  inputCamera: {
-    backgroundColor: '#2ABFB0',
-    padding: 15,
-    borderRadius: 100,
+    marginBottom: 10,
   },
   inputSave: {
     marginTop: 20,
+  },
+  camera: {
+    alignSelf: 'center',
+    alignItems: 'center',
+    marginTop: 10,
+    width: 80,
   },
 });
 

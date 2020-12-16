@@ -37,11 +37,7 @@ const Routes = () => {
         component={RegisterServices}
         options={{
           tabBarIcon: ({focused}) => (
-            <Icon
-              name="create"
-              size={20}
-              color={focused ? '#fff' : '#8FD9CB'}
-            />
+            <Icon name="menu" size={25} color={focused ? '#fff' : '#8FD9CB'} />
           ),
         }}
       />
@@ -57,5 +53,4 @@ const Routes = () => {
     </Tab.Navigator>
   );
 };
-
 export default Routes;
