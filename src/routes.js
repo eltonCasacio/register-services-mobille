@@ -1,7 +1,7 @@
 import * as React from 'react';
 import {createMaterialTopTabNavigator} from '@react-navigation/material-top-tabs';
 
-import Home from './pages/Home';
+import Clients from './pages/Clients';
 import RegisterServices from './pages/RegisterServices';
 import HistoryServices from './pages/HistoryServices';
 
@@ -21,14 +21,10 @@ const Routes = () => {
       }}>
       <Tab.Screen
         name="Clientes"
-        component={Home}
+        component={Clients}
         options={{
           tabBarIcon: ({focused}) => (
-            <Icon
-              name="people"
-              size={20}
-              color={focused ? '#fff' : '#8FD9CB'}
-            />
+            <Icon name="face" size={20} color={focused ? '#fff' : '#8FD9CB'} />
           ),
         }}
       />
@@ -37,7 +33,7 @@ const Routes = () => {
         component={RegisterServices}
         options={{
           tabBarIcon: ({focused}) => (
-            <Icon name="menu" size={25} color={focused ? '#fff' : '#8FD9CB'} />
+            <Icon name="edit" size={20} color={focused ? '#fff' : '#8FD9CB'} />
           ),
         }}
       />

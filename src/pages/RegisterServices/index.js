@@ -6,8 +6,10 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 import Camera from '../../components/Camera';
 import ListClients from '../../components/ListClients';
 
+import {getClienteById} from '../../bd/clientes';
+
 const RegisterService = () => {
-  const [selectedClient, setSelectedClient] = useState('');
+  const [selectedClient, setSelectedClient] = useState({});
   const [description, setDescription] = useState('');
   const [price, setPrice] = useState('');
   const [date, setDate] = useState();
@@ -22,8 +24,7 @@ const RegisterService = () => {
   };
 
   const onChangeSelectedClient = (value) => {
-    console.log('chegou aqui ', value);
-    setSelectedClient(value || '');
+    setSelectedClient(value || {});
   };
 
   const cleanInputs = () => {
@@ -36,7 +37,7 @@ const RegisterService = () => {
 
   const save = () => {
     console.log('SALVANDO serviço', {
-      selectedClient,
+      id_Client: selectedClient.id,
       description,
       price,
       date,
@@ -44,12 +45,12 @@ const RegisterService = () => {
     });
   };
 
-  const clientes = ['elton', 'roberto', 'daneil', 'casacio'];
+  const clientes = getClienteById();
 
   return (
     <View style={styles.container}>
       <View>
-        <ListClients data={clientes} callback={onChangeSelectedClient} />
+        <ListClients clients={clientes} callback={onChangeSelectedClient} />
       </View>
 
       <View>
@@ -95,7 +96,7 @@ const RegisterService = () => {
 
           <Button
             style={styles.input}
-            disabled={!selectedClient}
+            disabled={!selectedClient.name}
             onPress={save}>
             SALVAR
           </Button>

@@ -2,9 +2,9 @@ import React, {useState} from 'react';
 import {View, TouchableOpacity, ScrollView, StyleSheet} from 'react-native';
 import {List} from 'react-native-paper';
 
-const ListClients = ({data, callback}) => {
+const ListClients = ({clients, callback}) => {
   const [expanded, setExpanded] = useState(false);
-  const [client, setClient] = useState('Selecione um Cliente');
+  const [client, setClient] = useState({});
 
   const handleSelectedClient = async (value) => {
     setExpanded(!expanded);
@@ -16,15 +16,15 @@ const ListClients = ({data, callback}) => {
     <View style={styles.container}>
       <ScrollView>
         <List.Accordion
-          title={client}
+          title={client.name}
           expanded={expanded}
           onPress={() => setExpanded(!expanded)}>
-          {data.map((item, indice) => (
+          {clients.map((item, indice) => (
             <TouchableOpacity
               style={styles.listItem}
               key={indice}
               onPress={() => handleSelectedClient(item)}>
-              <List.Item key={item} title={item} />
+              <List.Item key={item.id} title={item.name} />
             </TouchableOpacity>
           ))}
         </List.Accordion>
@@ -36,11 +36,11 @@ const ListClients = ({data, callback}) => {
 const styles = StyleSheet.create({
   container: {
     marginBottom: 25,
+    backgroundColor: '#ddd5',
   },
   listItem: {
-    backgroundColor: '#2ABFB0',
-    marginBottom: 2,
-    borderRadius: 5,
+    borderBottomWidth: 1,
+    borderBottomColor: '#2ABFB0',
   },
 });
 
