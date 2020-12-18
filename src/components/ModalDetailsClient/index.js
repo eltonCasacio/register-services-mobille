@@ -13,13 +13,9 @@ const ModalDetailsClient = ({handleCloseModalDetails, clientData}) => {
   const servicesBD = getServicosById();
 
   const [services, setServices] = useState(servicesBD);
-  const [totalServices, setTotalServices] = useState(servicesBD.length);
+  const [checkedDebt, setCheckedDebt] = useState(false);
   const [totalDebt, setTotalDebt] = useState(0);
-  const [checkedDebt, setCheckedDebt] = React.useState(false);
-
-  // const calculateDebt = (debts) {
-
-  // }
+  const [totalServices] = useState(servicesBD.length);
 
   const close = () => {
     handleCloseModalDetails();
@@ -30,12 +26,31 @@ const ModalDetailsClient = ({handleCloseModalDetails, clientData}) => {
   };
 
   const handleCheckedDebt = () => {
-    let listServices = checkedDebt
-      ? servicesBD.filter((service) => service.debt === checkedDebt)
-      : servicesBD;
+    let debts = 0;
 
-    setServices(listServices);
+    if (checkedDebt) {
+      debts = servicesBD.filter((service) => service.debt);
+      setServices(debts);
+      calculateDebt(debts);
+      return;
+    }
+
+    setServices(servicesBD);
+    calculateDebt(servicesBD);
   };
+
+  const calculateDebt = async (listServices) => {
+    const getPrices = (service) => service.valor;
+    const sumValues = (sum, value) => Number(sum) + Number(value);
+
+    const debts = await listServices.map(getPrices).reduce(sumValues);
+
+    setTotalDebt(debts);
+  };
+
+  useEffect(() => {
+    calculateDebt();
+  }, []);
 
   useEffect(() => {
     handleCheckedDebt();
@@ -102,23 +117,25 @@ const ModalDetailsClient = ({handleCloseModalDetails, clientData}) => {
           </Swipeable>
         </View>
 
-        <Text style={styles.totalDebts}>A receber: {totalDebt}</Text>
+        <Text style={styles.totalDebts}>
+          R${totalDebt.toFixed(2).replace('.', ',')}
+        </Text>
 
         <View style={styles.buttons}>
-          <IconButton
-            color="#2ABFB0"
-            icon="content-save-outline"
-            size={30}
-            style={styles.input}
-            onPress={save}
-          />
-
           <IconButton
             color="#2ABFB0"
             icon="close"
             size={30}
             style={styles.input}
             onPress={close}
+          />
+
+          <IconButton
+            color="#2ABFB0"
+            icon="currency-usd"
+            size={30}
+            style={styles.input}
+            onPress={save}
           />
         </View>
       </View>
