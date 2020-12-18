@@ -35,7 +35,7 @@ const servicos = [
     id: 11,
     id_cliente: 1,
     data: '12/12/20',
-    descricao: 'Serviço 1',
+    descricao: 'Serviço 1 Serviço 1 Serviço 1 Serviço 1 Serviço 1 Serviço 1 Serviço 1 Serviço 1 Serviço 1 Serviço 1 Serviço 1 Serviço 1',
     valor: 123.0,
     debt: false,
   },

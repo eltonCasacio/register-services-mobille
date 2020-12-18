@@ -1,12 +1,13 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, {useEffect, useState} from 'react';
-import {Text, View, FlatList, ScrollView} from 'react-native';
+import {Text, View, FlatList, ScrollView, TouchableOpacity} from 'react-native';
 import {TextInput, Portal, IconButton, Checkbox} from 'react-native-paper';
 import Swipeable from 'react-native-gesture-handler/Swipeable';
 
 import {getServicosById} from '../../bd/servicos';
+import {sendToWhatsapp, calculateDebit} from '../../services/clientDetails';
 
-import {styles} from './styles';
+import {styles, MyInput} from './styles';
 
 const ModalDetailsClient = ({handleCloseModalDetails, clientData}) => {
   const client = clientData;
@@ -21,65 +22,73 @@ const ModalDetailsClient = ({handleCloseModalDetails, clientData}) => {
     handleCloseModalDetails();
   };
 
-  const save = () => {
-    console.log('Salvando alteração do cliente ', clientData.name);
+  const handleOpenEditService = (service) => {
+    console.log('Abrir Modal para editar um serviço ', service);
   };
 
-  const handleCheckedDebt = () => {
-    let debts = 0;
+  const handleSwipeableLeftOpen = (service) => {
+    let newServices = [];
+    newServices.push(service);
+    sendToWhatsapp(newServices, clientData.phone);
+  };
+
+  const handleSwipeableRightOpen = (service) => {
+    console.log('Alterar status de pagamento no BD', service.id);
+  };
+
+  const onCashIn = () => {
+    sendToWhatsapp(servicesBD, clientData.phone);
+  };
+
+  const updateTableServices = () => {
+    let servicesToReceive = 0;
 
     if (checkedDebt) {
-      debts = servicesBD.filter((service) => service.debt);
-      setServices(debts);
-      calculateDebt(debts);
+      servicesToReceive = servicesBD.filter((service) => service.debt);
+      setServices(servicesToReceive);
+      calculateDebit(servicesToReceive).then((res) => setTotalDebt(res));
       return;
     }
 
     setServices(servicesBD);
-    calculateDebt(servicesBD);
+    calculateDebit(servicesBD).then((res) => setTotalDebt(res));
   };
 
-  const calculateDebt = async (listServices) => {
-    const getPrices = (service) => service.valor;
-    const sumValues = (sum, value) => Number(sum) + Number(value);
+  const RightActions = () => {
+    return (
+      <View style={styles.rightActionView}>
+        <IconButton icon="cash-100" color="#0f0" size={30} />
+        <Text>Pago</Text>
+      </View>
+    );
+  };
 
-    const debts = await listServices.map(getPrices).reduce(sumValues);
-
-    setTotalDebt(debts);
+  const LeftActions = () => {
+    return (
+      <View style={styles.leftActionView}>
+        <IconButton icon="send" color="#0f0" size={35} />
+        <Text>Enviado</Text>
+      </View>
+    );
   };
 
   useEffect(() => {
-    calculateDebt();
-  }, []);
-
-  useEffect(() => {
-    handleCheckedDebt();
+    updateTableServices();
   }, [checkedDebt]);
 
   return (
     <Portal>
       <View style={styles.container}>
+        <Text style={styles.title}>Detalhes</Text>
         <View>
-          <TextInput
-            style={styles.input}
-            value={client.name}
-            editable={false}
-            underlineColor="#2ABFB0"
-          />
+          <MyInput value={client.name} editable={false} />
+          <MyInput value={client.phone} editable={false} type={'numeric'} />
 
           <TextInput
-            style={styles.input}
-            value={client.phone}
-            keyboardType="numeric"
-            editable={false}
-            underlineColor="#2ABFB0"
-          />
-
-          <TextInput
-            style={{marginBottom: 10, backgroundColor: '#eee8'}}
+            style={styles.observation}
             value={client.observacao}
             multiline={true}
-            numberOfLines={3}
+            numberOfLines={2}
             editable={false}
             underlineColor="#2ABFB0"
           />
@@ -98,23 +107,31 @@ const ModalDetailsClient = ({handleCloseModalDetails, clientData}) => {
         </View>
 
         <View style={styles.list}>
-          <Swipeable>
-            <FlatList
-              data={services}
-              keyExtractor={(item) => String(item.id)}
-              renderItem={({item}) => (
-                <ScrollView>
-                  <View style={styles.listItem}>
+          <FlatList
+            data={services}
+            keyExtractor={(item) => String(item.id)}
+            renderItem={({item}) => (
+              <ScrollView>
+                <Swipeable
+                  key={item.id}
+                  renderRightActions={RightActions}
+                  renderLeftActions={LeftActions}
+                  onSwipeableLeftOpen={() => handleSwipeableLeftOpen(item)}
+                  onSwipeableRightOpen={() => handleSwipeableRightOpen(item)}>
+                  <TouchableOpacity
+                    style={styles.listItem}
+                    onPress={() => handleOpenEditService(item)}>
                     <View style={styles.datePrice}>
                       <Text>{item.data}</Text>
                       <Text>R${item.valor}</Text>
+                      <Text>{item.debt ? 'a receber' : 'pago'}</Text>
                     </View>
                     <Text>{item.descricao}</Text>
-                  </View>
-                </ScrollView>
-              )}
-            />
-          </Swipeable>
+                  </TouchableOpacity>
+                </Swipeable>
+              </ScrollView>
+            )}
+          />
         </View>
 
         <Text style={styles.totalDebts}>
@@ -135,7 +152,7 @@ const ModalDetailsClient = ({handleCloseModalDetails, clientData}) => {
             icon="currency-usd"
             size={30}
             style={styles.input}
-            onPress={save}
+            onPress={onCashIn}
           />
         </View>
       </View>

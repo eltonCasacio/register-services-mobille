@@ -1,4 +1,18 @@
+import React from 'react';
 import {StyleSheet} from 'react-native';
+import {TextInput} from 'react-native-paper';
+
+export const MyInput = ({value, editable, type = 'default'}) => {
+  return (
+    <TextInput
+      style={styles.input}
+      value={value}
+      editable={editable}
+      underlineColor="#2ABFB0"
+      keyboardType={type}
+    />
+  );
+};
 
 export const styles = StyleSheet.create({
   container: {
@@ -6,10 +20,21 @@ export const styles = StyleSheet.create({
     padding: 15,
     backgroundColor: '#fff',
   },
+  title: {
+    color: '#2ABFB0',
+    textAlign: 'center',
+    fontSize: 18,
+    marginBottom: 10,
+  },
   input: {
+    justifyContent: 'center',
     marginBottom: 5,
     backgroundColor: '#eee8',
-    maxHeight: 50,
+    maxHeight: 40,
+  },
+  observation: {
+    marginBottom: 5,
+    backgroundColor: '#eee8',
   },
   totalDebts: {
     alignSelf: 'flex-end',
@@ -40,5 +65,18 @@ export const styles = StyleSheet.create({
     justifyContent: 'space-around',
     flexDirection: 'row',
     margin: 10,
+  },
+  leftActionView: {
+    flex: 1,
+    flexDirection: 'row',
+    justifyContent: 'flex-start',
+    alignItems: 'center',
+    backgroundColor: '#efefef',
+  },
+  rightActionView: {
+    flexDirection: 'row',
+    justifyContent: 'flex-start',
+    alignItems: 'center',
+    marginRight: 10,
   },
 });
