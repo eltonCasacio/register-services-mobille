@@ -12,6 +12,8 @@ target 'servicesRegister' do
 
   pod 'react-native-camera', :path => '../node_modules/react-native-camera'
 
+  pod 'RealmJS', :path => '../node_modules/realm'
+
   target 'servicesRegisterTests' do
     inherit! :complete
     # Pods for testing

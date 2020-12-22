@@ -1,13 +1,18 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, {useEffect, useState} from 'react';
 import {Text, View, FlatList, ScrollView, TouchableOpacity} from 'react-native';
-import {TextInput, Portal, IconButton, Checkbox} from 'react-native-paper';
+import {Portal, Checkbox} from 'react-native-paper';
 import Swipeable from 'react-native-gesture-handler/Swipeable';
 
 import {getServicosById} from '../../bd/servicos';
-import {sendToWhatsapp, calculateDebit} from '../../services/clientDetails';
+import {sendToWhatsapp} from '../../services/SendToWhatsapp';
+import {calculateDebit} from '../../services/CalculateDebt';
 
-import {styles, MyInput} from './styles';
+import ModalDetailsService from '../ModalDetailsService';
+import {RightActionsCash, LeftActionsSend} from '../ActionsSwipeable';
+import {MyInput, PersonButton} from '../MyInput';
+
+import {styles} from './styles';
 
 const ModalDetailsClient = ({handleCloseModalDetails, clientData}) => {
   const client = clientData;
@@ -18,22 +23,24 @@ const ModalDetailsClient = ({handleCloseModalDetails, clientData}) => {
   const [totalDebt, setTotalDebt] = useState(0);
   const [totalServices] = useState(servicesBD.length);
 
+  const [showModalDetails, setShowModalDetailsService] = useState(false);
+  const [selectedService, setSelectedService] = useState(false);
+
   const close = () => {
     handleCloseModalDetails();
   };
 
   const handleOpenEditService = (service) => {
-    console.log('Abrir Modal para editar um serviço ', service);
+    setSelectedService(service);
+    setShowModalDetailsService(!showModalDetails);
   };
 
   const handleSwipeableLeftOpen = (service) => {
-    let newServices = [];
-    newServices.push(service);
-    sendToWhatsapp(newServices, clientData.phone);
+    sendToWhatsapp([service], clientData.phone);
   };
 
   const handleSwipeableRightOpen = (service) => {
-    console.log('Alterar status de pagamento no BD', service.id);
+    console.log('Alterar status de pagamento no BD');
   };
 
   const onCashIn = () => {
@@ -54,24 +61,6 @@ const ModalDetailsClient = ({handleCloseModalDetails, clientData}) => {
     calculateDebit(servicesBD).then((res) => setTotalDebt(res));
   };
 
-  const RightActions = () => {
-    return (
-      <View style={styles.rightActionView}>
-        <IconButton icon="cash-100" color="#0f0" size={30} />
-        <Text>Pago</Text>
-      </View>
-    );
-  };
-
-  const LeftActions = () => {
-    return (
-      <View style={styles.leftActionView}>
-        <IconButton icon="send" color="#0f0" size={35} />
-        <Text>Enviado</Text>
-      </View>
-    );
-  };
-
   useEffect(() => {
     updateTableServices();
   }, [checkedDebt]);
@@ -79,22 +68,20 @@ const ModalDetailsClient = ({handleCloseModalDetails, clientData}) => {
   return (
     <Portal>
       <View style={styles.container}>
-        <Text style={styles.title}>Detalhes</Text>
+        <Text style={styles.title}>DETALHES</Text>
         <View>
           <MyInput value={client.name} editable={false} />
           <MyInput value={client.phone} editable={false} type={'numeric'} />
 
-          <TextInput
-            style={styles.observation}
+          <MyInput
             value={client.observacao}
             multiline={true}
-            numberOfLines={2}
+            numberOfLines={3}
             editable={false}
-            underlineColor="#2ABFB0"
           />
         </View>
 
-        <Text style={styles.totalServices}>
+        <Text style={styles.totalDebts}>
           Total de seviços prestado: {totalServices}
         </Text>
 
@@ -114,8 +101,8 @@ const ModalDetailsClient = ({handleCloseModalDetails, clientData}) => {
               <ScrollView>
                 <Swipeable
                   key={item.id}
-                  renderRightActions={RightActions}
-                  renderLeftActions={LeftActions}
+                  renderRightActions={RightActionsCash}
+                  renderLeftActions={LeftActionsSend}
                   onSwipeableLeftOpen={() => handleSwipeableLeftOpen(item)}
                   onSwipeableRightOpen={() => handleSwipeableRightOpen(item)}>
                   <TouchableOpacity
@@ -139,22 +126,17 @@ const ModalDetailsClient = ({handleCloseModalDetails, clientData}) => {
         </Text>
 
         <View style={styles.buttons}>
-          <IconButton
-            color="#2ABFB0"
-            icon="close"
-            size={30}
-            style={styles.input}
-            onPress={close}
-          />
-
-          <IconButton
-            color="#2ABFB0"
-            icon="currency-usd"
-            size={30}
-            style={styles.input}
-            onPress={onCashIn}
-          />
+          <PersonButton icon="dollar-sign" callback={onCashIn} />
+          <PersonButton icon="x" callback={close} />
         </View>
+
+        {showModalDetails && (
+          <ModalDetailsService
+            clientID={client.id}
+            service={selectedService}
+            handleCloseModalDetails={handleOpenEditService}
+          />
+        )}
       </View>
     </Portal>
   );

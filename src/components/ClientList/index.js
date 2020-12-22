@@ -2,7 +2,7 @@ import React, {useState} from 'react';
 import {View, TouchableOpacity, ScrollView, StyleSheet} from 'react-native';
 import {List} from 'react-native-paper';
 
-const ListClients = ({clients, callback}) => {
+const ClientList = ({clients, callback}) => {
   const [expanded, setExpanded] = useState(false);
   const [client, setClient] = useState({});
 
@@ -16,7 +16,7 @@ const ListClients = ({clients, callback}) => {
     <View style={styles.container}>
       <ScrollView>
         <List.Accordion
-          title={client.name}
+          title={client.name || 'Selecione um cliente'}
           expanded={expanded}
           onPress={() => setExpanded(!expanded)}>
           {clients.map((item, indice) => (
@@ -36,7 +36,7 @@ const ListClients = ({clients, callback}) => {
 const styles = StyleSheet.create({
   container: {
     marginBottom: 25,
-    backgroundColor: '#ddd5',
+    backgroundColor: '#ddd7',
   },
   listItem: {
     borderBottomWidth: 1,
@@ -44,4 +44,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default ListClients;
+export default ClientList;

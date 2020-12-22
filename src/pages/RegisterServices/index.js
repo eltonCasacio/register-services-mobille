@@ -1,12 +1,11 @@
 import React, {useState} from 'react';
-import {View, StyleSheet, TouchableOpacity, Platform} from 'react-native';
-import {TextInput, Button} from 'react-native-paper';
+import {Text, View, TouchableOpacity, Platform} from 'react-native';
+import {MyInput, PersonButton} from '../../components/MyInput';
 import DateTimePicker from '@react-native-community/datetimepicker';
-
 import Camera from '../../components/Camera';
-import ListClients from '../../components/ListClients';
-
+import ClientList from '../../components/ClientList';
 import {getClienteById} from '../../bd/clientes';
+import {styles} from './styles';
 
 const RegisterService = () => {
   const [selectedClient, setSelectedClient] = useState({});
@@ -49,57 +48,40 @@ const RegisterService = () => {
 
   return (
     <View style={styles.container}>
-      <View>
-        <ListClients clients={clientes} callback={onChangeSelectedClient} />
-      </View>
+      <Text style={styles.title}>REGISTRO DE SERVIÇO</Text>
 
       <View>
-        <TextInput
-          style={styles.input}
+        <View>
+          <ClientList clients={clientes} callback={onChangeSelectedClient} />
+        </View>
+
+        <MyInput
           label="Descrição"
           value={description}
           multiline={true}
-          numberOfLines={5}
-          underlineColor="#2ABFB0"
-          onChangeText={(value) => setDescription(value)}
+          numberOfLines={3}
+          callback={(value) => setDescription(value)}
         />
 
-        <TextInput
-          style={styles.input}
+        <MyInput
           label="Valor"
           value={String(price)}
-          underlineColor="#2ABFB0"
           keyboardType="numeric"
-          onChangeText={(value) => setPrice(value)}
+          callback={(value) => setPrice(value)}
         />
-        <View>
-          <TouchableOpacity
-            style={styles.input}
-            onPress={() => setShowDate(true)}>
-            <TextInput
-              editable={false}
-              label="Data"
-              value={date}
-              underlineColor="#2ABFB0"
-            />
-          </TouchableOpacity>
-        </View>
 
-        <View style={styles.camera}>
-          <Camera setPhoto={setPhoto} />
-        </View>
+        <TouchableOpacity
+          style={styles.input}
+          onPress={() => setShowDate(true)}>
+          <MyInput editable={false} label="Data" value={date} />
+        </TouchableOpacity>
+      </View>
 
+      <View>
         <View style={styles.buttons}>
-          <Button style={styles.input} onPress={cleanInputs}>
-            LIMPAR
-          </Button>
-
-          <Button
-            style={styles.input}
-            disabled={!selectedClient.name}
-            onPress={save}>
-            SALVAR
-          </Button>
+          <PersonButton icon="trash-2" callback={cleanInputs} />
+          <Camera setPhoto={setPhoto} />
+          <PersonButton icon="save" callback={save} />
         </View>
       </View>
 
@@ -116,29 +98,5 @@ const RegisterService = () => {
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 15,
-  },
-  buttons: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    margin: 10,
-  },
-  input: {
-    marginBottom: 10,
-  },
-  inputSave: {
-    marginTop: 20,
-  },
-  camera: {
-    alignSelf: 'center',
-    alignItems: 'center',
-    marginTop: 10,
-    width: 80,
-  },
-});
 
 export default RegisterService;
